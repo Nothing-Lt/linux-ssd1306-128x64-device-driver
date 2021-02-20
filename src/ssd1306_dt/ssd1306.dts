@@ -1,0 +1,21 @@
+/dts-v1/;
+/plugin/;
+
+/{ /* this is our device tree overlay root node */
+
+  compatible = "ti,beaglebone", "ti,beaglebone-black";
+  part-number = "BBB-I2C2"; // you can choose any name here but it should be memorable
+  version = "00A0";
+
+  fragment@0 {
+    target = <&i2c2>;
+    __overlay__ {
+      SSD1306: SSD1306@3C { /* the real time clock defined as child of the i2c1 bus */
+        compatible = "SSD1306";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        reg = <0x3C>;
+      };
+    };
+  };
+}; /* root node end */
