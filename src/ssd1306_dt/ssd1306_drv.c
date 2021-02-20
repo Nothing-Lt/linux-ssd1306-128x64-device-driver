@@ -25,18 +25,33 @@
     then these 2 parts you have to finish.
     
     (1) i2c device list. This is a list for the i2c device, any i2c sensor should be add to this list.
-        For adding the device to this list, we can use like this:
+        For adding the device to this list, we can use device tree overlay.
+        The implemented device tree is as follow:
+        /dts-v1/;
+        /plugin/;
+
+        /{ // this is our device tree overlay root node
+
+          compatible = "ti,beaglebone", "ti,beaglebone-black";
+          part-number = "BBB-I2C2"; // you can choose any name here but it should be memorable
+          version = "00A0";
         
-        static struct i2c_board_info SSD1306_board_info = {
-            I2C_BOARD_INFO("SSD1306", SSD1306_ADDR)
-        };
+          fragment@0 { // fragment keyword is very important.
+            target = <&i2c2>; // Target is the target bus we will add this device in.
+            __overlay__ { // This __overlay__ keyword is very important.
+              SSD1306: SSD1306@3C { // the SSD1306 defined as child of the i2c2 bus
+                compatible = "SSD1306"; // This property should be same as the .compatible element in board_info in ssd1306 driver.
+                #address-cells = <1>;
+                #size-cells = <0>;
+                reg = <0x3C>; // Declare the i2c address of this device
+              };
+            };
+          };
+        }; // root node end 
 
-        ssd1306_adapter = i2c_get_adapter(2);    // i2c2;
-        i2c_new_device(ssd1306_adapter, &SSD1306_board_info);
-        i2c_put_adapter(ssd1306_adapter);
-
-        a. use i2c_board_info announce a i2c device with macro I2C_BOARD_INFO.
-        b. call function i2c_get_adapter, i2c_new_device and i2c_put_adapter.
+    a. Compile with command line "dtc -O dtb -o SSD1306-00A0.dtbo -b 0 -@ SSD1306.dts"  
+    b. put the .dtbo file to /lib/firmware
+    c. modify the uEnv.txt file and let the kernel load this .dtbo file
 
     (2) i2c driver list. This is a list for i2c driver, any i2c device driver should be add to this list.
         For adding driver to this list, we can do list this
