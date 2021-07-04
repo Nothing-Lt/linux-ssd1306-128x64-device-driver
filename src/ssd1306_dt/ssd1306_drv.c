@@ -112,7 +112,7 @@ static int ssd1306_write(struct file* fp, const char* data, size_t size, loff_t*
     SSD1306_print(c_buf, Font_7x10, SSD1306_WHITE);
     SSD1306_refresh();
 
-    return 0;
+    return size;
 }
 
 static loff_t ssd1306_lseek(struct file* file, loff_t offset, int orig)
